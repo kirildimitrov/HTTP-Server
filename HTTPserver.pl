@@ -15,7 +15,7 @@ print "[Server $0 accepting clients at localhost:$PORT]\n";
 
 while(my $client=$server->accept()){
   $client->autoflush(1);
-  print $client "Welcome to $0;\n"
+  print $client "Welcome to $0\n";
   my $hostinfo=gethostbyaddr($client->peeraddr);
 
 }
