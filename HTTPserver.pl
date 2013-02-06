@@ -3,6 +3,8 @@ use warnings;
 use strict;
 use IO::Socket;
 use Net::hostent;
+use LWP::UserAgent;
+use HTTP::Request;
 
 my $PORT=8080;
 
@@ -10,13 +12,23 @@ my $server=IO::Socket::INET->new(Proto => 'tcp',
                               LocalPort => $PORT, 
                               Listen =>SOMAXCONN, 
                               Reuse=>1);
-die "can't start server" unless $server;
+die "Can't start server" unless $server;
 print "[Server $0 accepting clients at localhost:$PORT]\n";
-
 while(my $client=$server->accept()){
-  $client->autoflush(1);
-  
+  $client->autoflush(1); 
   my $request=<$client>;
+  
+  if($request =~ m|^POST /(.+) HTTP/1.[01]|){
+    if(-e $1){
+      print $client "HTTP/1.0 200 OK\nContent-Type: text/html\n\n";
+      open(my $f, "<$1"); 
+      while($f,"<$1"){ 
+        print $client $_; 
+        print $client "POST method";
+        print "POST Method;"
+      }
+    }
+}  
   if ($request =~ m|^GET /(.+) HTTP/1.[01]|) {
     if(-e $1){
       print $client "HTTP/1.0 200 OK\nContent-Type: text/html\n\n";
@@ -26,12 +38,13 @@ while(my $client=$server->accept()){
         print $client "HTTP/1.0 404 FILE NOT FOUND\n";
         print $client "Content-type: text/plain\n\n";
         print $client "file $1 not found\n";
+        print "Can't find this document on server\n"
       }
   }else {
     print $client "HTTP/1.0 400 BAD REQUEST\n";
     print $client "Content-Type: text/plain\n\n";
     print $client "BAD REQUEST!\n";
-    print "Client connected\n";   
+    print "BAD REQUEST\n";   
    }
   close $client;
 }
